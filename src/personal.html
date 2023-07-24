@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal To Do List </title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" 
+    rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" 
+    crossorigin="anonymous">
+
+    <style>
+        main{
+            background-color: rgb(0, 128, 0, 0.3);
+        }
+        h1{
+            text-align: center;
+        }
+
+        form{
+            display: flex;
+            flex-direction: column;
+            justify-self: center;
+            justify-content: space-between;
+            height: 150px;
+            padding: 0 15%;
+            margin-top: 40px;
+        }
+
+        button.add-new{
+            width: 40%;
+            margin-left: 30%;
+        }
+        hr{
+            color: green;
+        }
+
+
+        .completed {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .delete-button{
+            background-color: rgb(135, 1, 1);
+            width: auto;
+            max-width: 60px;
+            border: none;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        a{
+            color: black;
+        }
+
+        .finished{
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .finished-button{
+            max-width: 50px;
+            border: none;
+            color: white;
+            margin-bottom: 30px;
+            background-color: green;
+        }
+
+        .todo-item{
+            display: flex;
+            justify-content: space-between;
+            padding-top: 20px;
+        }
+
+        footer{
+            bottom: 0;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+    <main>
+        <header>
+            <nav class="nav">
+                <a href="index.html"> Go Home </a>
+            </nav>
+        </header>
+        <h1> Personal To Do List </h1>
+    
+        <form action="" id="taskForm">
+            <label for="task">Task: </label>
+            <input type="text" name="task" id="task">  
+            <button class="add-new" type="submit"> Add New </button>
+        </form>
+        <hr>
+    </main>
+
+        <div id="taskList"></div>
+
+        <footer> </footer>
+
+
+        <script>
+            const taskForm = document.getElementById('taskForm');
+const taskList = document.getElementById('taskList');
+
+// Function to add a new task
+function addTask(event) {
+    event.preventDefault();
+
+    // Get the task input value
+    const taskInput = document.getElementById('task');
+    const taskText = taskInput.value.trim();
+
+    if (taskText !== '') {
+        // Create a new task item
+        const taskItem = document.createElement('li');
+        taskItem.classList.add('todo-item');
+
+        // Create a span element for the task text
+        const taskTextSpan = document.createElement('span');
+        taskTextSpan.innerText = taskText;
+
+        // Create a delete button
+        const deleteButton = document.createElement('button');
+        deleteButton.innerText = 'Delete';
+        deleteButton.classList.add('delete-button');
+
+        // Create a finished button
+        const finishedButton = document.createElement('button');
+        finishedButton.innerText = 'Done';
+        finishedButton.classList.add('finished-button');
+        finishedButton.addEventListener('click', markTaskAsFinished);
+
+
+        // Add event listener to delete button
+        deleteButton.addEventListener('click', deleteTask);
+
+        // Append the task text and delete button to the task item
+        taskItem.appendChild(taskTextSpan);
+        taskItem.appendChild(finishedButton);
+        taskItem.appendChild(deleteButton);
+        
+
+        // Add the task item to the task list
+        taskList.appendChild(taskItem);
+
+        // Clear the task input
+        taskInput.value = '';
+
+        // Save the tasks to local storage
+        saveTasksToLocalStorage();
+    }
+}
+
+// Function to mark a task as finished
+
+function markTaskAsFinished(event) {
+    const taskItem = event.target.parentElement;
+    taskItem.classList.toggle('finished');
+
+    // Save the tasks to local storage
+    saveTasksToLocalStorage();
+}
+
+
+
+
+// Function to delete a task
+function deleteTask(event) {
+    const taskItem = event.target.parentElement;
+    taskList.removeChild(taskItem);
+
+    // Save the tasks to local storage
+    saveTasksToLocalStorage();
+}
+
+// Function to save the tasks to local storage
+function saveTasksToLocalStorage() {
+    const personalTasks = Array.from(taskList.children).map(function(task) {
+        return task.querySelector('span').innerText;
+    });
+
+    localStorage.setItem('personalTasks', JSON.stringify(personalTasks));
+}
+
+// Function to load the tasks from local storage
+function loadTasksFromLocalStorage() {
+    const personalTasks = JSON.parse(localStorage.getItem('personalTasks'));
+
+    if (personalTasks) {
+        personalTasks.forEach(function(taskText) {
+            const taskItem = document.createElement('li');
+            taskItem.classList.add('todo-item');
+
+            const taskTextSpan = document.createElement('span');
+            taskTextSpan.innerText = taskText;
+
+            const deleteButton = document.createElement('button');
+            deleteButton.innerText = 'Delete';
+            deleteButton.classList.add('delete-button');
+            deleteButton.addEventListener('click', deleteTask);
+
+            const finishedButton = document.createElement('button');
+            finishedButton.innerText = 'Done';
+            finishedButton.classList.add('finished-button');
+            finishedButton.addEventListener('click', markTaskAsFinished);
+
+            taskItem.appendChild(taskTextSpan);
+            taskItem.appendChild(finishedButton);
+            taskItem.appendChild(deleteButton);
+            
+
+            taskList.appendChild(taskItem);
+        });
+    }
+}
+
+// Add event listener to the task form submit
+    taskForm.addEventListener('submit', addTask);
+
+// Load the tasks from local storage on page load
+    loadTasksFromLocalStorage();
+
+
+        </script>
+
+    
+
+</body>
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work To Do List </title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" 
+    rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" 
+    crossorigin="anonymous">
+
+    <style>
+        main{
+            background-color: rgb(0, 128, 0, 0.3);
+        }
+        h1{
+            text-align: center;
+        }
+
+        form{
+            display: flex;
+            flex-direction: column;
+            justify-self: center;
+            justify-content: space-between;
+            height: 450px;
+            padding: 0 15%;
+            margin-top: 40px;
+        }
+
+        button{
+            width: 40%;
+            margin-left: 30%;
+        }
+        hr{
+            color: green;
+        }
+
+
+        .completed {
+        text-decoration: line-through;
+        color: #999;
+        }
+
+        .delete-task{
+            background-color: rgb(135, 1, 1);
+            max-width: 70px;
+            border: none;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .check-task{
+            background-color: aliceblue;
+            color: black;
+            max-width: 70px;
+            border: none;
+        }
+
+        a{
+            color: black;
+        }
+
+    </style>
+</head>
+<body>
+
+    <main>
+        <header>
+            <nav class="nav">
+                <a href="index.html"> Go Home </a>
+            </nav>
+        </header>
+        <h1> Work To Do List </h1>
+
+        <form action="" id="taskForm">
+            <label for="task">Task: </label>
+            <input type="text" name="task" id="task"> 
+            <label for="person"> Person task is assigned to: </label>
+            <input type="text" class="person" id="person"> 
+            <label for="deadline"> Deadline </label>
+            <input type="date" class="deadline" id="deadline"> 
+            <button class="add-new" type="submit"> Add New </button>
+        </form>
+        <hr>
+
+    </main>
+
+    
+    <div id="taskList"></div>
+    
+
+
+
+    <script>
+    const form = document.getElementById('taskForm');
+    const taskList = document.getElementById('taskList');
+    const clearButton = document.getElementById('clear-button');
+
+
+    form.addEventListener('submit', function(e) {
+    e.preventDefault(); // Prevent form submission
+
+    // Get the input values
+    const taskInput = document.getElementById('task');
+    const personInput = document.getElementById('person');
+    const deadlineInput = document.getElementById('deadline');
+
+    // Create a new task object
+    const task = {
+        id: Date.now(), // Generate a unique ID for the task
+        task: taskInput.value,
+        person: personInput.value,
+        deadline: deadlineInput.value, 
+    };
+
+    // Retrieve existing tasks from local storage
+    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+    // Add the new task to the tasks array
+    tasks.push(task);
+
+    // Store the updated tasks array in local storage
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+
+    // Create a new task element
+    const taskElement = document.createElement('div');
+    taskElement.setAttribute('data-task-id', task.id); // Set the task ID as a data attribute
+    taskElement.innerHTML = `
+        <h3>${task.task}</h3>
+        <p>Assigned to: ${task.person}</p>
+        <p>Deadline: ${task.deadline}</p>
+        <button class="delete-task">Delete </button>
+        <button class="check-task">Done</button>
+        <hr>
+        
+    `;
+
+    // Append the new task element to the task list
+    taskList.appendChild(taskElement);
+
+    // Clear the input fields
+    taskInput.value = '';
+    personInput.value = '';
+    deadlineInput.value = '';
+});
+
+// Add event listener to the task list for delete button clicks
+taskList.addEventListener('click', function(e) {
+    if (e.target.classList.contains('delete-task')) {
+        const taskElement = e.target.closest('[data-task-id]'); // Find the closest task element
+        const taskId = taskElement.getAttribute('data-task-id'); // Get the task ID
+
+        // Retrieve existing tasks from local storage
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+        // Remove the task with the matching ID from the tasks array
+        tasks = tasks.filter(task => task.id !== parseInt(taskId));
+
+        // Store the updated tasks array in local storage
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+
+        // Remove the task element from the task list
+        taskElement.remove();
+    }
+
+    else if (e.target.classList.contains('check-task')) {
+    
+    const taskElement = e.target.closest('[data-task-id]'); // Find the closest task element
+    const taskId = taskElement.getAttribute('data-task-id'); // Get the task ID
+
+    // Retrieve existing tasks from local storage
+    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    console.log(tasks)
+
+    // Find the task with the matching ID in the tasks array
+    const task = tasks.find(task => task.id === parseInt(taskId));
+
+    // Toggle the completed status of the task
+    task.completed = !task.completed;
+
+    // Store the updated tasks array in local storage
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+
+    // Update the task element to reflect the completed status
+    taskElement.classList.toggle('completed', task.completed);
+  }
+});
+
+// Retrieve tasks from local storage on page load
+window.addEventListener('load', function() {
+    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+    tasks.forEach(function(task) {
+        const taskElement = document.createElement('div');
+        taskElement.setAttribute('data-task-id', task.id); // Set the task ID as a data attribute
+        taskElement.innerHTML = `
+            <h3>${task.task}</h3>
+            <p>Assigned to: ${task.person}</p>
+            <p>Deadline: ${task.deadline}</p>
+            <button class="delete-task">Delete</button>
+            <button class="check-task">Finished </button>
+
+        `;
+
+        taskList.appendChild(taskElement);
+    });
+});
+
+
+</script>
+
+
+</body>
+</html>
